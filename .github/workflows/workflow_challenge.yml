@@ -51,16 +51,27 @@ jobs:
         number: 1
         repo: juliangruber/approve-pull-request-action # optional
 
-    # - name: Create
-    #   id: create
-    #   uses: atlassian/gajira-create@v3
-    #   with:
-    #     project: GA
-    #     issuetype: Build
-    #     summary: Build completed for ${{ github.repository }}
-    #     description: Compare branch
-    #     fields: '{"customfield_10171": "test"}'
-    
-    # - name: Log created issue
-    #   run: echo "Issue ${{ steps.create.outputs.issue }} was created"
-  
+  jira:
+    name: Transition Issue
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Login
+      uses: atlassian/gajira-login@master
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+    - name: Find Issue Key
+      uses: ./
+      with:
+        from: commits
+
+    - name: Transition issue
+      uses: atlassian/gajira-transition@master
+      with:
+        issue: ${{ steps.create.outputs.issue }}
+        transition: "In Progress"
