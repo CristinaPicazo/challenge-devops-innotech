@@ -76,7 +76,7 @@ jobs:
       run: echo "Issue ${{ steps.create.outputs.issue }} was created"
 
 
-    - name: Run Snyk to check for vulnerabilities
+    - name: Run Snyk to check for vulnerabilitiesss
       uses: snyk/actions/node@master
       env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
