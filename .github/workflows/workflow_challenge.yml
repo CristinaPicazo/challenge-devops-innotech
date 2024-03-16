@@ -48,10 +48,10 @@ jobs:
       uses: juliangruber/approve-pull-request-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        number: pull-request-number-${{ github.event.number}}
+        number: 2
 
   jira:
-    name: Transition Issue
+    name: JIRA TASK
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
