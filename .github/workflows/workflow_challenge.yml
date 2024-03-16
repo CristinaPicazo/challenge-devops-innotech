@@ -39,3 +39,15 @@ jobs:
       if: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}
       uses: peter-evans/create-pull-request@v6
 
+    # - name: Create
+    #   id: create
+    #   uses: atlassian/gajira-create@v3
+    #   with:
+    #     project: GA
+    #     issuetype: Build
+    #     summary: Build completed for ${{ github.repository }}
+    #     description: Compare branch
+    #     fields: '{"customfield_10171": "test"}'
+    
+    # - name: Log created issue
+    #   run: echo "Issue ${{ steps.create.outputs.issue }} was created"
