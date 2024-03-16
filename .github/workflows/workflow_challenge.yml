@@ -48,7 +48,7 @@ jobs:
       uses: juliangruber/approve-pull-request-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        number: ${{ github.event.number}}
+        number: pull-request-number-${{ github.event.number}}
 
   jira:
     name: Transition Issue
@@ -68,7 +68,7 @@ jobs:
       id: create
       uses: atlassian/gajira-create@v3
       with:
-          project: Equipo-01
+          project: iE0
           issuetype: Build
           summary: Build completed for ${{ github.repository }}
           description: Compare branch
