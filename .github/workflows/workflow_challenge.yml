@@ -1,0 +1,84 @@
+name: DEVOPS01
+
+on:
+    # Trigger analysis when pushing in master or pull requests, and when creating
+    # a pull request. 
+    push:
+      branches:
+        - develop
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+jobs:
+
+  sonarqube:
+    permissions:
+        # Required to allow actions/checkout to clone the repository onto the runner
+        contents: read
+        # Required to allow the vitest coverage action to write a comment into the pull request
+        pull-requests: write
+      # ... rest of the node.js.yml
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting.
+        fetch-depth: 0
+
+    # Triggering SonarQube analysis as results of it are required by Quality Gate check.
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+    # Check the Quality Gate status.
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+    # Force to fail step after specific time.
+      timeout-minutes: 5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
+
+    - name: "Pull request if check is ok"
+      if: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}
+      uses: juliangruber/approve-pull-request-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        number: 2
+
+  jira:
+    name: JIRA TASK
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Login
+      uses: atlassian/gajira-login@master
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+    - name: Create
+      id: create
+      uses: atlassian/gajira-create@v3
+      with:
+          project: E0
+          issuetype: Build
+          summary: Build completed for ${{ github.repository }}
+
+    - name: Log created issue
+      run: echo "Issue ${{ steps.create.outputs.issue }} was created"
+
+
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/node@master
+      env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+          command: monitor
