@@ -37,7 +37,11 @@ jobs:
 
     - name: "Pull request if check is ok"
       if: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}
-      uses: peter-evans/create-pull-request@v6
+      uses: juliangruber/approve-pull-request-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        number: 1
+        repo: juliangruber/approve-pull-request-action # optional
 
     # - name: Create
     #   id: create
