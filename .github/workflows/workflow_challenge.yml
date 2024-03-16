@@ -10,6 +10,9 @@ on:
         types: [opened, synchronize, reopened]
 
 jobs:
+  permissions:
+    pull-requests: write
+
   sonarqube:
     runs-on: ubuntu-latest
     steps:
